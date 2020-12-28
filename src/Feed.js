@@ -1,0 +1,49 @@
+import React, { useEffect, useState } from 'react'
+import TweetBox from './TweetBox'
+import Post from './Post'
+import './Feed.css'
+import db from './firebase'
+
+import FlipMove from "react-flip-move";
+
+function Feed() {
+
+    const [posts, setPosts] = useState([])
+
+    useEffect(() => {
+        db.collection('allPosts')
+            .orderBy('timestamp', 'asc')
+            .onSnapshot(snapshot => {
+            setPosts(snapshot.docs.map(doc => doc.data()))
+        })
+    }, [])
+
+    return (
+        <div className="feed">
+            {/* Header */}
+            <div className="feed__header">
+                <h2>Latest tweets</h2>
+            </div>
+
+            {/* Tweet Box */}
+            <TweetBox />
+
+            {/* Posts */}
+            <FlipMove>
+                {posts.map((post) => (
+                    <Post
+                        key={post.text}
+                        displayName={post.displayName}
+                        userName={post.userName}
+                        verified={post.verified}
+                        text={post.text}
+                        avatar={post.avatar}
+                        image={post.image}
+                    />
+                ))}
+            </FlipMove>
+        </div>
+    )
+}
+
+export default Feed
